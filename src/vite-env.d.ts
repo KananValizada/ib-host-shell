@@ -1,4 +1,4 @@
 /// <reference types="vite/client" />
 
-declare module 'remote_accounts/AccountsPage';
-declare module 'remote_cards/CardsPage';
+declare module 'accounts/AccountsPage';
+declare module 'cards/CardsPage';

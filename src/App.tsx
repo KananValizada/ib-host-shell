@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import React from "react";
 import {
   BrowserRouter,
   NavLink,
@@ -6,64 +6,60 @@ import {
   Route,
   Routes,
 } from "react-router-dom";
-import { menuItems } from "./menu";
-import { pageRegistry } from "./pages";
+import { RemotePageLoader } from "./mf/RemotePageLoader";
+import { remoteRegistry } from "./mf/registry";
 
-function App() {
+export default function App() {
+  const enabledApps = remoteRegistry.filter((app) => app.enabled);
+
   return (
     <BrowserRouter>
       <div style={{ display: "flex", minHeight: "100vh" }}>
         <aside
-          style={{
-            width: 220,
-            borderRight: "1px solid #ddd",
-            padding: 20,
-            boxSizing: "border-box",
-          }}
+          style={{ width: 240, padding: 16, borderRight: "1px solid #e5e7eb" }}
         >
           <h2>IB Shell</h2>
 
-          <nav style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {menuItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                style={({ isActive }) => ({
-                  textDecoration: "none",
-                  color: isActive ? "black" : "#555",
-                  fontWeight: isActive ? 700 : 400,
-                })}
-              >
-                {item.label}
-              </NavLink>
-            ))}
+          <nav>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+              {enabledApps.map((app) => (
+                <li key={app.id} style={{ marginBottom: 12 }}>
+                  <NavLink
+                    to={app.routePath}
+                    style={({ isActive }) => ({
+                      textDecoration: "none",
+                      fontWeight: isActive ? 700 : 400,
+                    })}
+                  >
+                    {app.title}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
           </nav>
         </aside>
 
-        <main style={{ flex: 1, padding: 20 }}>
+        <main style={{ flex: 1, padding: 24 }}>
           <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            {enabledApps.map((app) => (
+              <Route
+                key={app.id}
+                path={app.routePath}
+                element={<RemotePageLoader app={app} />}
+              />
+            ))}
 
-            {menuItems.map((item) => {
-              const PageComponent = pageRegistry[item.pageKey];
+            {enabledApps.length > 0 && (
+              <Route
+                path="/"
+                element={<Navigate to={enabledApps[0].routePath} replace />}
+              />
+            )}
 
-              return (
-                <Route
-                  key={item.path}
-                  path={item.path}
-                  element={
-                    <Suspense fallback={<div>{item.label} loading...</div>}>
-                      <PageComponent />
-                    </Suspense>
-                  }
-                />
-              );
-            })}
+            <Route path="*" element={<div>Page not found</div>} />
           </Routes>
         </main>
       </div>
     </BrowserRouter>
   );
 }
-
-export default App;

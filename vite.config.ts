@@ -11,8 +11,8 @@ export default defineConfig(({ mode }) => {
       federation({
         name: 'host_shell',
         remotes: {
-          remote_accounts: env.VITE_REMOTE_ACCOUNTS,
-          remote_cards: env.VITE_REMOTE_CARDS,
+          accounts: env.VITE_REMOTE_ACCOUNTS,
+          cards: env.VITE_REMOTE_CARDS,
         },
          shared: {
           react: {
